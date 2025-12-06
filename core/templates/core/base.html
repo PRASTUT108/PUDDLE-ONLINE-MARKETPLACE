@@ -1,0 +1,150 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Puddle - Buy and sell items in your community">
+
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <title>{% block title %}{% endblock %} | Puddle</title>
+    </head>
+
+    <body class="bg-gray-50">
+        <!-- Navigation -->
+        <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <a href="{% url 'core:index' %}" class="text-2xl font-bold text-teal-600 hover:text-teal-700 transition">Puddle</a>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="{% url 'item:items' %}" class="text-gray-700 font-medium hover:text-teal-600 transition">Browse</a>
+                        <a href="{% url 'item:new' %}" class="text-gray-700 font-medium hover:text-teal-600 transition">Sell</a>
+                        
+                        {% if request.user.is_authenticated %}
+                            <!-- Authenticated User Navigation -->
+                            <div class="flex items-center space-x-4">
+                                <!-- Inbox Link with Badge -->
+                                <a href="{% url 'conversation:inbox' %}" class="relative inline-flex items-center px-4 py-2 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    Inbox
+                                </a>
+
+                                <!-- Dashboard Link -->
+                                <a href="{% url 'dashboard:index' %}" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">Dashboard</a>
+
+                                <!-- Logout Form -->
+                                <form method="post" action="{% url 'core:logout' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-gray-700 font-medium hover:text-red-600 transition">Logout</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <!-- Unauthenticated User Navigation -->
+                            <div class="flex items-center space-x-3">
+                                <a href="{% url 'core:login' %}" class="px-4 py-2 text-teal-600 font-semibold hover:bg-teal-50 rounded-lg transition">Log in</a>
+                                <a href="{% url 'core:signup' %}" class="px-4 py-2 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition">Sign up</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Mobile Navigation Menu -->
+                <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-gray-200">
+                    <a href="{% url 'item:items' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Browse</a>
+                    <a href="{% url 'item:new' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Sell</a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'conversation:inbox' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Inbox</a>
+                        <a href="{% url 'dashboard:index' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Dashboard</a>
+                        <form method="post" action="{% url 'core:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left block px-4 py-2 text-red-600 hover:bg-red-50 rounded">Logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'core:login' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Log in</a>
+                        <a href="{% url 'core:signup' %}" class="block px-4 py-2 bg-teal-600 text-white rounded">Sign up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <!-- Messages/Alerts -->
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            {% for message in messages %}
+            <div class="mb-3 p-4 rounded-lg {% if message.tags %}bg-{{ message.tags }}-50 border border-{{ message.tags }}-200{% else %}bg-blue-50 border border-blue-200{% endif %} text-{% if message.tags %}{{ message.tags }}{% else %}blue{% endif %}-800">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="min-h-[calc(100vh-16rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-300 mt-16 border-t border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- About Column -->
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">About Puddle</h3>
+                        <p class="text-sm leading-relaxed">Puddle is a community marketplace connecting buyers and sellers locally. Buy and sell items with ease in your neighborhood.</p>
+                    </div>
+
+                    <!-- Quick Links Column -->
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Quick Links</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="{% url 'core:index' %}" class="hover:text-teal-400 transition">Home</a></li>
+                            <li><a href="{% url 'item:items' %}" class="hover:text-teal-400 transition">Browse Items</a></li>
+                            <li><a href="{% url 'core:contact' %}" class="hover:text-teal-400 transition">Contact Us</a></li>
+                            <li><a href="{% url 'item:new' %}" class="hover:text-teal-400 transition">Sell Item</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Legal Column -->
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Legal</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-teal-400 transition">Privacy Policy</a></li>
+                            <li><a href="#" class="hover:text-teal-400 transition">Terms of Use</a></li>
+                            <li><a href="#" class="hover:text-teal-400 transition">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-800 pt-8">
+                    <div class="flex justify-between items-center text-sm">
+                        <p>&copy; 2025 Puddle. All rights reserved.</p>
+                        <p>Made with ❤️ for your community</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Mobile Menu Toggle Script -->
+        <script>
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                const menu = document.getElementById('mobileMenu');
+                menu.classList.toggle('hidden');
+            });
+        </script>
+    </body>
+</html>
